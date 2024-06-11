@@ -25,17 +25,28 @@ app.get("/", function (req, res) {
 // });
 
 
-app.get("/api/:date", function (req, res) {
+app.get("/api/:date?", function (req, res) {
 
 
   let date;
-
+  
+  // check if date is empty
+  if(!req.params.date){
+    date = new Date()
+    setRespondDate(date,res)
+  }
   // check if time is number
-  if (/^\d+$/.test(req.params.date)) {
+  else if (/^\d+$/.test(req.params.date)) {
     date = new Date(+req.params.date)
     setRespondDate(date,res)
-  }// check if time is date pattern
-    else if(/^\d{4}-\d{2}-\d{2}$/.test(req.params.date)) {
+  }
+  // check if time is date pattern
+  else if(/^\d{4}-\d{2}-\d{2}$/.test(req.params.date)) {
+    date = new Date(req.params.date)
+    setRespondDate(date,res)
+  }
+  // check if date()
+  else if(/\b\d{2}\s\w+\s\d{4},\sGMT\b/.test(req.params.date)){
     date = new Date(req.params.date)
     setRespondDate(date,res)
   }else{
@@ -47,7 +58,7 @@ app.get("/api/:date", function (req, res) {
 
 function setRespondDate(date,res){
   const utcString = date.toUTCString();
-  const unixTimestamp = Math.floor(date.getTime() / 1000);
+  const unixTimestamp =date.getTime() / 1000;
   res.json({ unix: unixTimestamp, utc: utcString });
 }
 
